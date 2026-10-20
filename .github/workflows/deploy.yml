@@ -1,0 +1,84 @@
+name: Build and deploy blog
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  repository_dispatch:
+    types: [site-shell-updated]   # the main site sends this after it deploys, so the blog picks up menu changes
+
+permissions:
+  contents: write   # lets the workflow commit newly published blog posts
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Publish blog posts from uploaded zip files
+        run: node scripts/import-blog.mjs
+
+      - name: Save published posts to the repository
+        run: |
+          if [ -n "$(git status --porcelain -- src/content/blog blog-uploads)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add -A -- src/content/blog blog-uploads
+            git commit -m "Publish blog post(s) from uploaded zip [skip ci]"
+            git push
+          fi
+
+      - name: Configure GitHub Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build blog
+        run: node scripts/build.mjs
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL }}   # optional repository variable; empty means the default in site.config.mjs
+
+      - name: SEO audit
+        run: node scripts/audit.mjs
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL }}   # optional repository variable; empty means the default in site.config.mjs
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      # Optional: rebuild the main site so its homepage, site search and sitemap pick up new posts.
+      # Needs repository variable MAIN_SITE_REPO (LJ-Web-Management/www.careereducationinstitute.org)
+      # and secret SITE_DISPATCH_TOKEN (a fine-grained token with Contents: read and write on that repo).
+      - name: Tell the main site to rebuild
+        if: ${{ vars.MAIN_SITE_REPO != '' && github.event_name != 'repository_dispatch' }}
+        env:
+          GH_TOKEN: ${{ secrets.SITE_DISPATCH_TOKEN }}
+        run: gh api "repos/${{ vars.MAIN_SITE_REPO }}/dispatches" -f event_type=blog-updated
