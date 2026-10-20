@@ -18,10 +18,10 @@ Tags: job offers, salary, career advice
 Author: Jane Smith
 Alt: Two job offer letters on a desk
 ---
-Choosing between two good offers is a great problem to have — but it can still be stressful.
+Choosing between two good offers is a great problem to have, but it can still be stressful.
 
 ## Start with total pay
-Compare base pay, overtime, bonuses and benefits — not just the hourly rate.
+Compare base pay, overtime, bonuses and benefits, not just the hourly rate.
 
 ## Look at growth
 - Will you learn new skills?
@@ -45,7 +45,7 @@ file becomes the title.
 
 ### Formatting you can use in the article
 - A blank line starts a new paragraph.
-- `## Heading` makes a section heading (use these — they help SEO and create the “On this page” menu).
+- `## Heading` makes a section heading (use these: they help SEO and create the “On this page” menu).
 - `- item` makes a bullet list; `1. item` makes a numbered list.
 - `**bold**` and `*italic*`.
 - `[link text](https://example.com)` or internal links like `[electrician salary](/careers/electrician/salary/)`.
@@ -73,7 +73,7 @@ That’s it. In about 2–4 minutes the post is live at `lj-web-management.githu
 added to the sitemap and RSS feed, and the zip is removed from the folder.
 
 ## If something goes wrong
-- Check the **Actions** tab on GitHub — a red ✗ means the build failed; click it to see why.
+- Check the **Actions** tab on GitHub: a red ✗ means the build failed; click it to see why.
 - If a zip can’t be read, a file named `FAILED-<your-zip>.txt` appears in `blog-uploads` explaining why.
   Fix the zip, upload it again, and delete the FAILED note.
 - To edit or remove a post later, edit or delete its folder in `src/content/blog/`.

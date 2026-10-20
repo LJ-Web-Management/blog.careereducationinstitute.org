@@ -14,7 +14,7 @@ const INBOX = path.join(ROOT, 'blog-uploads');
 const OUT = path.join(ROOT, 'src/content/blog');
 const IMG = /\.(jpe?g|png|webp|gif|avif)$/i;
 let sharp = null;
-try { sharp = (await import('sharp')).default; } catch { console.warn('! sharp not installed — images will be copied without optimization'); }
+try { sharp = (await import('sharp')).default; } catch { console.warn('! sharp not installed: images will be copied without optimization'); }
 
 const today = () => new Date().toLocaleDateString('en-CA');
 const slugify = (s) => String(s).toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/['’]/g, '').replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70).replace(/-+$/, '');
@@ -127,7 +127,7 @@ for (const z of targets) {
     if (fs.existsSync(failNote)) fs.rmSync(failNote);
     ok++;
   } catch (e) {
-    console.error('✗ Could not import', path.basename(z), '—', e.message);
+    console.error('✗ Could not import', path.basename(z) + ':', e.message);
     if (z.startsWith(INBOX)) fs.writeFileSync(path.join(INBOX, `FAILED-${path.basename(z)}.txt`), `This zip could not be published: ${e.message}\nSee BLOG-UPLOAD-GUIDE.md for the required format, fix the zip and upload it again.\n`);
   }
 }

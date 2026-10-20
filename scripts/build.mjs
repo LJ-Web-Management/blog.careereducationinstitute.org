@@ -24,7 +24,7 @@ fs.rmSync(DIST, { recursive: true, force: true });
 fs.mkdirSync(DIST, { recursive: true });
 for (const p of pages) {
   // No em dashes in published pages (style rule); convert any that slip through.
-  const html = (p.raw ? p.content : layout(p)).replace(/[ \t]*—[ \t]*/g, ', ');
+  const html = (p.raw ? p.content : layout(p)).replace(/[ \t]*\u2014[ \t]*/g, ', ');
   const file = p.file ? path.join(DIST, p.file.replace(/^blog\//, '')) : path.join(out(p.path), 'index.html');
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, html);

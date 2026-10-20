@@ -149,7 +149,7 @@ nested or indented sub-bullets (they flatten into one list), bare URLs (not clic
 `[text](url)`), code fences (```` ``` ````), footnotes and raw HTML.
 
 **Never:**
-- Use an em dash (—) anywhere, including the header lines. The site bans them, and the build silently turns
+- Use an em dash (U+2014) anywhere, including the header lines. The site bans them, and the build silently turns
   each one into a comma, which reads badly. The audit will not catch it, so check yourself. Use commas,
   periods, colons or parentheses instead.
 - Promise jobs, pay, promotions, licensure or exam results, or say our courses are accredited, give
@@ -190,7 +190,7 @@ nested or indented sub-bullets (they flatten into one list), bare URLs (not clic
 ## 7. Check before publishing (all must pass)
 1. `npm run build`, then `npm run audit` → must report **0 errors**; fix any warning about this post too.
 2. `dist/<slug>/index.html` exists; `src/content/blog/<slug>/cover.jpg` is 1600×900.
-3. Word count is 1,100 to 1,600; no `—` anywhere in `post.json`; every internal link resolves (the audit checks this).
+3. Word count is 1,100 to 1,600; no em dash (U+2014) anywhere in `post.json`; every internal link resolves (the audit checks this).
 4. No formatting leaked through as raw symbols. This must print `No leftover markup`:
    `node -e "const h=require('fs').readFileSync('dist/'+process.argv[1]+'/index.html','utf8');const t=h.split('<article class=\"prose\">')[1].split('</article>')[0].replace(/<[^>]+>/g,' ');const bad=t.match(/(^|\s)#\s|#{2,}|\*\*|__|\x60|\]\(|(^|\s)_[^_\s][^_]*_(?=[\s.,;:!?]|$)|https?:\/\/\S+/g);console.log(bad?'Leftover markup: '+[...new Set(bad.map(s=>s.trim()))].join('  '):'No leftover markup')" <slug>`
    Then open the page in a browser if you can (or read the HTML) and confirm the headings, lists, tip box

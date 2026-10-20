@@ -10,7 +10,7 @@ const fillCount = (s) => (typeof s === 'string' ? s.replace(/\{careers\}/g, care
 export function loadPosts(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir).filter((d) => fs.existsSync(path.join(dir, d, 'post.json'))).map((d) => {
-    const p = JSON.parse(fs.readFileSync(path.join(dir, d, 'post.json'), 'utf8').replace(/[ \t]*—[ \t]*/g, ', '));
+    const p = JSON.parse(fs.readFileSync(path.join(dir, d, 'post.json'), 'utf8').replace(/[ \t]*\u2014[ \t]*/g, ', '));
     for (const k of ['title', 'description', 'body']) p[k] = fillCount(p[k]);
     const files = fs.readdirSync(path.join(dir, d)).filter((f) => /\.(jpe?g|png|webp|gif|avif)$/i.test(f));
     return { ...p, slug: p.slug || d, dir: path.join(dir, d), images: files, category: p.category || 'Career Advice' };

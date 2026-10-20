@@ -55,7 +55,7 @@ for (const f of htmlFiles) {
     if (d.length < 70) warn(rel, `description short (${d.length})`);
     if (!noindex) descs.set(d, [...(descs.get(d) || []), rel]);
   }
-  if (html.includes('—')) err(rel, 'contains an em dash');
+  if (html.includes('\u2014')) err(rel, 'contains an em dash');
   if (/\{(careers|pay:[a-z0-9-]+)\}/.test(html)) err(rel, 'unfilled {careers} or {pay:...} token');
   const h1s = (html.match(/<h1[\s>]/g) || []).length;
   if (h1s !== 1) err(rel, `${h1s} <h1> tags`);

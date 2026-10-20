@@ -30,7 +30,7 @@ export const clamp = (s, max = 158) => {
   s = s.replace(/\s+/g, ' ').trim();
   if (s.length <= max) return s;
   const cut = s.slice(0, max - 1);
-  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:\-–—]$/, '') + '…';
+  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:\-–\u2014]$/, '') + '…';
 };
 
 // Builds a <title>, adding the brand only when it still fits in ~60 characters.
