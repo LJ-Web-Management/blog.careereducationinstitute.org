@@ -33,8 +33,9 @@ export async function loadShell(ROOT) {
   throw new Error('No site shell found. Build the main site first or set SHELL_URL.');
 }
 
-// Number of career profiles on the main site, from its shell.json. Posts write {careers} so the count never goes stale.
-export const careerCount = () => S?.careers || null;
+// Number of career profiles on the main site, as the site writes it ("700+"), from its shell.json. Posts write
+// {careers} so the count never goes stale.
+export const careerCount = () => S?.careersLabel || (S?.careers >= 100 ? `${(Math.floor(S.careers / 100) * 100).toLocaleString('en-US')}+` : S?.careers ? String(S.careers) : null);
 
 export const crumbsHtml = (crumbs) =>
   crumbs?.length ? `<nav class="crumbs" aria-label="Breadcrumb"><ol>${crumbs.map(([n, p], i) => `<li>${i === crumbs.length - 1 ? `<span aria-current="page">${esc(n)}</span>` : `<a href="${href(p)}">${esc(n)}</a>`}</li>`).join('')}</ol></nav>` : '';

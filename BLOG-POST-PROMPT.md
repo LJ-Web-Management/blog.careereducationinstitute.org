@@ -55,7 +55,7 @@ Work through every step in order. Do not skip the checks.
    ```
    Note which categories, career fields, careers, audiences (students, career changers, working
    professionals, employers) and search phrases they already cover.
-2. **Know what the rest of the site already targets.** Every one of the 709 careers already has pages for its
+2. **Know what the rest of the site already targets.** Every one of the 700+ careers already has pages for its
    overview, salary, how to become, day in the life, skills, interview questions, FAQ and fit quiz. There are
    also about 2,200 "X vs. Y" comparisons, 14 "best careers" lists, 46 guides and, per job, a hiring guide,
    job description and onboarding plan. List every page with

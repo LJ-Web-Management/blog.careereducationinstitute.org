@@ -5,7 +5,7 @@ import { esc, href, abs, clamp, fitTitle, md, fmtDate, slugify, wordCount } from
 import { pageHero, ctaCard, sideLinks, careerCount } from '../lib/layout.mjs';
 
 // {careers} in a post becomes the main site's current number of career profiles ("hundreds of" if the shell predates the count).
-const fillCount = (s) => (typeof s === 'string' ? s.replace(/\{careers\}/g, careerCount() ? careerCount().toLocaleString('en-US') : 'hundreds of') : s);
+const fillCount = (s) => (typeof s === 'string' ? s.replace(/\{careers\}/g, careerCount() || 'hundreds of') : s);
 
 export function loadPosts(dir) {
   if (!fs.existsSync(dir)) return [];
