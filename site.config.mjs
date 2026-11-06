@@ -4,8 +4,9 @@
 // https://blog.careereducationinstitute.org. Blog pages are written as /blog/... paths and published at the root of
 // this site; every other path (/careers/..., /assets/..., /favicon.ico) is the main site, at mainUrl.
 const url = (process.env.SITE_URL || 'http://localhost:4174').replace(/\/$/, '');
-// MAIN_SITE_URL overrides; otherwise the main site follows the same pattern as this one.
-const mainUrl = (process.env.MAIN_SITE_URL || (/localhost/.test(url) ? 'http://localhost:4173' : /github\.io/.test(url) ? new URL(url).origin + '/www.careereducationinstitute.org' : 'https://www.careereducationinstitute.org')).replace(/\/$/, '');
+// MAIN_SITE_URL overrides; otherwise: the local main site, www.careereducationinstitute.org once this blog runs on
+// careereducationinstitute.org, or else the main site's current live address, https://cei.ictraining.us.
+const mainUrl = (process.env.MAIN_SITE_URL || (/localhost/.test(url) ? 'http://localhost:4173' : /(^|\.)careereducationinstitute\.org$/.test(new URL(url).hostname) ? 'https://www.careereducationinstitute.org' : 'https://cei.ictraining.us')).replace(/\/$/, '');
 
 export default {
   name: 'Career Education Institute',
