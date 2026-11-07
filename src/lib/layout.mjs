@@ -7,12 +7,13 @@ import { esc, href, abs, fmtDate } from './util.mjs';
 
 let S = null;
 
-// Load order: SHELL_URL or <main site>/assets/shell.json, then the main site's local dist/ (when this repo sits
-// next to it), then the copy saved in src/shell.json from the last successful build.
+// Load order: SHELL_URL (a URL or a file) or <main site>/assets/shell.json, then the main site's local dist/ (when
+// this repo sits next to it), then the copy saved in src/shell.json from the last successful build.
 export async function loadShell(ROOT) {
   const saved = path.join(ROOT, 'src/shell.json');
   const tries = [];
   if (/^https:/.test(cfg.shellUrl)) tries.push(['url', cfg.shellUrl]);
+  else if (!/^https?:/.test(cfg.shellUrl)) tries.push(['file', path.resolve(ROOT, cfg.shellUrl)]);
   tries.push(['file', path.resolve(ROOT, cfg.mainSiteDist, 'assets/shell.json')], ['file', saved]);
   for (const [kind, src] of tries) {
     try {
@@ -21,9 +22,12 @@ export async function loadShell(ROOT) {
         : fs.readFileSync(src, 'utf8');
       S = JSON.parse(text);
       if (src !== saved) fs.writeFileSync(saved, JSON.stringify(S));
-      // The shell's links are root paths on the main site; this blog is another site, so make them absolute.
-      const origin = new URL(cfg.mainUrl).origin;
-      for (const k of ['header', 'footer']) S[k] = S[k].replace(/\s(href|src|action)="\/(?!\/)/g, ` $1="${origin}/`);
+      // The shell's links are root paths on the main site. They work as they are when the blog is served under it;
+      // otherwise (a local preview on its own) make them absolute.
+      if (!cfg.nested) {
+        const origin = new URL(cfg.mainUrl).origin;
+        for (const k of ['header', 'footer']) S[k] = S[k].replace(/\s(href|src|action)="\/(?!\/)/g, ` $1="${origin}/`);
+      }
       console.log(`Shell from ${src} (main site build ${S.built})`);
       return S;
     } catch (e) {

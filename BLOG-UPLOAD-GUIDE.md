@@ -69,11 +69,12 @@ and `resume-tips.txt` + `resume-tips.jpg`.
 2. Click **Add file → Upload files**.
 3. Drag in your zip and click **Commit changes**.
 
-That’s it. In about 2–4 minutes the post is live at `lj-web-management.github.io/blog.careereducationinstitute.org/<post-title>/` (`blog.careereducationinstitute.org/<post-title>/` once the custom domain is connected), listed on the blog page,
+That’s it. In about 3–6 minutes the post is live at `cei.ictraining.us/blog/<post-title>/`, listed on the blog page,
 added to the sitemap and RSS feed, and the zip is removed from the folder.
 
 ## If something goes wrong
-- Check the **Actions** tab on GitHub: a red ✗ means the build failed; click it to see why.
+- Check the **Actions** tab on GitHub (here, and in the main site's repository, whose deploy publishes the blog): a red ✗
+  means the build failed; click it to see why.
 - If a zip can’t be read, a file named `FAILED-<your-zip>.txt` appears in `blog-uploads` explaining why.
   Fix the zip, upload it again, and delete the FAILED note.
 - To edit or remove a post later, edit or delete its folder in `src/content/blog/`.

@@ -1,6 +1,6 @@
 // Builds the Career Education Institute blog into dist/. Usage: node scripts/build.mjs
-// The blog is its own site (blog.careereducationinstitute.org). Pages are written as /blog/... paths, so /blog/my-post/
-// is dist/my-post/index.html. The header, footer and stylesheet come from the main site (src/lib/layout.mjs).
+// The blog is published at /blog/ of the main site (cfg.url, e.g. https://cei.ictraining.us/blog). Pages are written as
+// /blog/... paths, so /blog/my-post/ is dist/my-post/index.html, and the main site copies dist/ to its dist/blog/. The header, footer and stylesheet come from the main site (src/lib/layout.mjs).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -52,12 +52,12 @@ const indexable = pages.filter((p) => !p.noindex && !p.raw);
 fs.writeFileSync(path.join(DIST, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${indexable.map((p) => `<url><loc>${esc(abs(p.path))}</loc><lastmod>${p.modified || cfg.updated}</lastmod>${p.type === 'article' && p.og ? `<image:image><image:loc>${esc(abs(p.og))}</image:loc></image:image>` : ''}</url>`).join('\n')}\n</urlset>\n`);
 const snip = (d = '', n = 120) => (d.length <= n ? d : d.slice(0, d.lastIndexOf(' ', n)).replace(/[,;:.\s]+$/, '') + '…');
 fs.writeFileSync(path.join(DIST, 'search-index.json'), JSON.stringify(indexable.filter((p) => p.kind).map((p) => ({ t: p.name || p.title, u: abs(p.path), d: snip(p.desc), y: p.kind, ...(p.keywords ? { k: p.keywords } : {}) }))));
-// This blog is its own site, so it has its own robots.txt. It only takes effect at a domain root (once the custom domain
-// is connected); until then the main site's robots.txt lists this sitemap.
-fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${abs('/blog/sitemap.xml')}\n`);
-// llms.txt for AI assistants (read at a domain root, so it takes effect with the custom domain; the main site's llms.txt
-// lists the posts meanwhile).
-fs.writeFileSync(path.join(DIST, 'llms.txt'), `# ${cfg.name} Blog\n\n> ${cfg.description}\n\nThe blog of ${cfg.name} (${cfg.mainUrl}/). Posts and categories are listed below; the full list with dates is in ${abs('/blog/sitemap.xml')} and ${abs('/blog/feed.xml')}.\n\n## Posts\n${posts.map((p) => `- [${p.title}](${abs(`/blog/${p.slug}/`)}): ${p.description}`).join('\n')}\n\n## Categories\n${indexable.filter((p) => p.path.startsWith('/blog/category/')).map((p) => `- [${p.name || p.title}](${abs(p.path)})`).join('\n')}\n\n## Main site\n- [Careers](${cfg.mainUrl}/careers/) · [Trainings](${cfg.mainUrl}/training/) · [llms.txt](${cfg.mainUrl}/llms.txt)\n`);
+// Under the main site, its robots.txt lists this sitemap and its llms.txt lists the posts. Both files are only read
+// at a domain root, so the blog writes its own only when it runs on its own (local preview).
+if (!cfg.nested) {
+  fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${abs('/blog/sitemap.xml')}\n`);
+  fs.writeFileSync(path.join(DIST, 'llms.txt'), `# ${cfg.name} Blog\n\n> ${cfg.description}\n\nThe blog of ${cfg.name} (${cfg.mainUrl}/). Posts and categories are listed below; the full list with dates is in ${abs('/blog/sitemap.xml')} and ${abs('/blog/feed.xml')}.\n\n## Posts\n${posts.map((p) => `- [${p.title}](${abs(`/blog/${p.slug}/`)}): ${p.description}`).join('\n')}\n\n## Categories\n${indexable.filter((p) => p.path.startsWith('/blog/category/')).map((p) => `- [${p.name || p.title}](${abs(p.path)})`).join('\n')}\n\n## Main site\n- [Careers](${cfg.mainUrl}/careers/) · [Trainings](${cfg.mainUrl}/training/) · [llms.txt](${cfg.mainUrl}/llms.txt)\n`);
+}
 fs.writeFileSync(path.join(DIST, 'posts.json'), JSON.stringify(posts.map((p) => ({ slug: p.slug, title: p.title, description: p.description, category: p.category, date: p.date, ...(p.updated ? { updated: p.updated } : {}) }))));
 
 console.log(`Built ${pages.length} blog pages (${posts.length} posts) for ${abs('/blog/')} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Career Education Institute blog, published at /blog/ of www.careereducationinstitute.org.",
+  "description": "Career Education Institute blog, published at /blog/ of the main site (https://cei.ictraining.us/blog/).",
   "scripts": {
     "build": "node scripts/build.mjs",
     "audit": "node scripts/audit.mjs",

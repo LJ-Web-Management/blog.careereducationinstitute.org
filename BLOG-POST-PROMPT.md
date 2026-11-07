@@ -22,15 +22,15 @@ Follow BLOG-POST-PROMPT.md in the repo root exactly, all 8 steps. It has the ful
 6. npm run build in the main site, then npm run build and npm run audit here must show 0 errors, and the leftover-markup check must pass.
 7. Commit only src/content/blog/<slug>/, push to main and confirm the GitHub Action deploy succeeded.
 
-Report the topic shortlist and why you chose it, the title, the word count and https://lj-web-management.github.io/blog.careereducationinstitute.org/<slug>/
+Report the topic shortlist and why you chose it, the title, the word count and https://cei.ictraining.us/blog/<slug>/
 ```
 
 ---
 
 You are publishing one new post to the Career Education Institute blog
 (repository https://github.com/LJ-Web-Management/blog.careereducationinstitute.org, a static blog built with
-`npm run build` and deployed to GitHub Pages on every push to `main`: https://lj-web-management.github.io/blog.careereducationinstitute.org/,
-later https://blog.careereducationinstitute.org/). The rest of the site is the main site repository,
+`npm run build` and published at https://cei.ictraining.us/blog/ by the main site's deploy, which every push to `main`
+here starts). The rest of the site is the main site repository,
 https://github.com/LJ-Web-Management/www.careereducationinstitute.org. Keep it next to this one in a folder named `www.careereducationinstitute.org`:
 facts, links to check and the shared header, footer and stylesheet come from it.
 Work through every step in order. Do not skip the checks.
@@ -201,8 +201,8 @@ nested or indented sub-bullets (they flatten into one list), bare URLs (not clic
 ## 8. Publish
 1. Commit only `src/content/blog/<slug>/` with the message `Add blog post: <title>` and push to `main`.
    If you cannot push to `main`, open a pull request into `main` and tell me it must be merged to go live.
-2. The push triggers the "Build and deploy" GitHub Action. If `gh` is available, wait for it and confirm it succeeded.
+2. The push triggers this repo's "Build and deploy blog" GitHub Action, which then starts the main site's "Build and deploy"
+   Action that publishes the blog. If `gh` is available, wait for both and confirm they succeeded.
 3. Report back: the topic shortlist and why the winner won, the primary search phrase, the title,
    description, category, word count, the internal links used, the image prompt you used, and the live URL:
-   `https://lj-web-management.github.io/blog.careereducationinstitute.org/<slug>/`
-   (once the custom domain is connected: `https://blog.careereducationinstitute.org/<slug>/`).
+   `https://cei.ictraining.us/blog/<slug>/`.

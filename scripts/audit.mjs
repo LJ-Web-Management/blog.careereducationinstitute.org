@@ -11,7 +11,7 @@ const root = cfg.basePath;
 const base = root;
 const MAIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', cfg.mainSiteDist);
 const mainExists = (u) => { // absolute link into the main site: true/false when its dist/ is here, null otherwise
-  if (!u.startsWith(cfg.mainUrl + '/') || !fs.existsSync(MAIN)) return null;
+  if (!u.startsWith(cfg.mainUrl + '/') || u.startsWith(cfg.url + '/') || !fs.existsSync(MAIN)) return null;
   const f = path.join(MAIN, decodeURIComponent(u.slice(cfg.mainUrl.length).split('#')[0].split('?')[0]));
   return fs.existsSync(f) && fs.statSync(f).isFile() ? true : fs.existsSync(path.join(f, 'index.html'));
 };
@@ -66,7 +66,7 @@ for (const f of htmlFiles) {
   else if (!is404 && canon !== cfg.url + rel.slice(root.length)) err(rel, `canonical mismatch ${canon}`);
   const og = (html.match(/<meta property="og:image" content="([^"]+)"/) || [])[1];
   if (!og) err(rel, 'missing og:image');
-  else if (og.startsWith(cfg.mainUrl + '/') ? mainExists(og) === false : !exists(og.replace(cfg.url, root))) warn(rel, `og:image file not generated: ${og}`);
+  else if (!og.startsWith(cfg.url + '/') && og.startsWith(cfg.mainUrl + '/') ? mainExists(og) === false : !exists(og.replace(cfg.url, root))) warn(rel, `og:image file not generated: ${og}`);
   for (const m of html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)) {
     try { JSON.parse(m[1]); } catch { err(rel, 'invalid JSON-LD'); }
   }
@@ -79,6 +79,8 @@ for (const f of htmlFiles) {
   // Links
   for (const m of html.matchAll(/\s(?:href|src)="([^"]+)"/g)) {
     let u = m[1].replace(/&amp;/g, '&');
+    // Under the main site, the shared header and footer link to it with root paths: check those against its dist/.
+    if (cfg.nested && u.startsWith('/') && !u.startsWith('//') && exists(u) === null) u = new URL(cfg.mainUrl).origin + u;
     if (mainExists(u) === false) { err(rel, `broken main-site link ${u}`); continue; }
     if (/^(https?:|mailto:|tel:|#|data:)/.test(u)) continue;
     if (u.startsWith('./')) u = rel + u.slice(2);
@@ -105,7 +107,7 @@ for (const u of sm) {
   if (!exists(p)) err('sitemap', `URL not found: ${u}`);
   if (p !== base + '/' && !inbound.get(p)) warn('orphan', `no internal links to ${p}`);
 }
-for (const f of ['sitemap.xml', '404.html', 'search-index.json', 'posts.json', 'feed.xml', 'sw.js', 'robots.txt', 'llms.txt']) if (!fs.existsSync(path.join(DIST, f))) err('site', `missing ${f}`);
+for (const f of ['sitemap.xml', '404.html', 'search-index.json', 'posts.json', 'feed.xml', 'sw.js', ...(cfg.nested ? [] : ['robots.txt', 'llms.txt'])]) if (!fs.existsSync(path.join(DIST, f))) err('site', `missing ${f}`);
 
 const show = (label, list, n = 40) => { if (list.length) { console.log(`\n${label} (${list.length}):`); list.slice(0, n).forEach((x) => console.log('  - ' + x)); if (list.length > n) console.log(`  … ${list.length - n} more`); } };
 show('ERRORS', errors);

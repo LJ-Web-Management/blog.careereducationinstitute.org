@@ -1,11 +1,13 @@
 name: Build and deploy blog
 
+# The blog is published at /blog/ of the main site (https://cei.ictraining.us/blog/): the main site's own workflow
+# checks out this repo and builds it into its dist/blog/. This workflow imports uploaded zips, checks the build,
+# asks the main site to redeploy, and keeps this repo's old github.io address redirecting to the new one.
+
 on:
   push:
     branches: [main]
   workflow_dispatch:
-  repository_dispatch:
-    types: [site-shell-updated]   # the main site sends this after it deploys, so the blog picks up menu changes
 
 permissions:
   contents: write   # lets the workflow commit newly published blog posts
@@ -47,21 +49,29 @@ jobs:
         id: pages
         uses: actions/configure-pages@v5
 
+      # BLOG_URL (optional repository variable) is the blog's address; it defaults to https://cei.ictraining.us/blog.
       - name: Build blog
         run: node scripts/build.mjs
         env:
-          SITE_URL: ${{ steps.pages.outputs.base_url }}
-          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL || 'https://cei.ictraining.us' }}   # where the main site is live; the repository variable MAIN_SITE_URL overrides
+          SITE_URL: ${{ vars.BLOG_URL || 'https://cei.ictraining.us/blog' }}
+          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL }}   # optional repository variable; empty means the address the blog sits under
 
       - name: SEO audit
         run: node scripts/audit.mjs
         env:
-          SITE_URL: ${{ steps.pages.outputs.base_url }}
-          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL || 'https://cei.ictraining.us' }}   # where the main site is live; the repository variable MAIN_SITE_URL overrides
+          SITE_URL: ${{ vars.BLOG_URL || 'https://cei.ictraining.us/blog' }}
+          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL }}
+
+      # This repo's own Pages site (the old github.io address) only redirects to the blog's real address.
+      - name: Redirect pages for the old address
+        run: node scripts/redirects.mjs
+        env:
+          SITE_URL: ${{ vars.BLOG_URL || 'https://cei.ictraining.us/blog' }}
+          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL }}
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: dist-redirects
 
   deploy:
     needs: build
@@ -74,11 +84,18 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      # Optional: rebuild the main site so its homepage, site search and sitemap pick up new posts.
-      # Needs repository variable MAIN_SITE_REPO (LJ-Web-Management/www.careereducationinstitute.org)
-      # and secret SITE_DISPATCH_TOKEN (a fine-grained token with Contents: read and write on that repo).
-      - name: Tell the main site to rebuild
-        if: ${{ vars.MAIN_SITE_REPO != '' && github.event_name != 'repository_dispatch' }}
+      # Publish: the main site's deploy builds this blog into cei.ictraining.us/blog/. Needs the secret
+      # SITE_DISPATCH_TOKEN (a fine-grained token with Contents: read and write on the main site's repo). Without it,
+      # new posts go live on the main site's next deploy (it also redeploys on a schedule).
+      # MAIN_SITE_REPO (optional variable) defaults to LJ-Web-Management/www.careereducationinstitute.org.
+      - name: Tell the main site to rebuild (publishes the blog)
+        if: ${{ github.event_name != 'repository_dispatch' }}
         env:
           GH_TOKEN: ${{ secrets.SITE_DISPATCH_TOKEN }}
-        run: gh api "repos/${{ vars.MAIN_SITE_REPO }}/dispatches" -f event_type=blog-updated
+          REPO: ${{ vars.MAIN_SITE_REPO || 'LJ-Web-Management/www.careereducationinstitute.org' }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::warning::SITE_DISPATCH_TOKEN is not set, so the main site was not asked to redeploy. New posts appear at /blog/ on its next deploy."
+            exit 0
+          fi
+          gh api "repos/$REPO/dispatches" -f event_type=blog-updated
