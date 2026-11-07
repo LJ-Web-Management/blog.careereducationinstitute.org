@@ -55,6 +55,9 @@ fs.writeFileSync(path.join(DIST, 'search-index.json'), JSON.stringify(indexable.
 // This blog is its own site, so it has its own robots.txt. It only takes effect at a domain root (once the custom domain
 // is connected); until then the main site's robots.txt lists this sitemap.
 fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${abs('/blog/sitemap.xml')}\n`);
+// llms.txt for AI assistants (read at a domain root, so it takes effect with the custom domain; the main site's llms.txt
+// lists the posts meanwhile).
+fs.writeFileSync(path.join(DIST, 'llms.txt'), `# ${cfg.name} Blog\n\n> ${cfg.description}\n\nThe blog of ${cfg.name} (${cfg.mainUrl}/). Posts and categories are listed below; the full list with dates is in ${abs('/blog/sitemap.xml')} and ${abs('/blog/feed.xml')}.\n\n## Posts\n${posts.map((p) => `- [${p.title}](${abs(`/blog/${p.slug}/`)}): ${p.description}`).join('\n')}\n\n## Categories\n${indexable.filter((p) => p.path.startsWith('/blog/category/')).map((p) => `- [${p.name || p.title}](${abs(p.path)})`).join('\n')}\n\n## Main site\n- [Careers](${cfg.mainUrl}/careers/) · [Trainings](${cfg.mainUrl}/training/) · [llms.txt](${cfg.mainUrl}/llms.txt)\n`);
 fs.writeFileSync(path.join(DIST, 'posts.json'), JSON.stringify(posts.map((p) => ({ slug: p.slug, title: p.title, description: p.description, category: p.category, date: p.date, ...(p.updated ? { updated: p.updated } : {}) }))));
 
 console.log(`Built ${pages.length} blog pages (${posts.length} posts) for ${abs('/blog/')} in ${((Date.now() - t0) / 1000).toFixed(1)}s`);

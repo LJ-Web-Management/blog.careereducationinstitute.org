@@ -51,13 +51,13 @@ jobs:
         run: node scripts/build.mjs
         env:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
-          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL }}   # optional repository variable; empty means the default in site.config.mjs
+          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL || 'https://cei.ictraining.us' }}   # where the main site is live; the repository variable MAIN_SITE_URL overrides
 
       - name: SEO audit
         run: node scripts/audit.mjs
         env:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
-          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL }}   # optional repository variable; empty means the default in site.config.mjs
+          MAIN_SITE_URL: ${{ vars.MAIN_SITE_URL || 'https://cei.ictraining.us' }}   # where the main site is live; the repository variable MAIN_SITE_URL overrides
 
       - uses: actions/upload-pages-artifact@v3
         with:

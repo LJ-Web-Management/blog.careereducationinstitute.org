@@ -105,7 +105,7 @@ for (const u of sm) {
   if (!exists(p)) err('sitemap', `URL not found: ${u}`);
   if (p !== base + '/' && !inbound.get(p)) warn('orphan', `no internal links to ${p}`);
 }
-for (const f of ['sitemap.xml', '404.html', 'search-index.json', 'posts.json', 'feed.xml', 'sw.js', 'robots.txt']) if (!fs.existsSync(path.join(DIST, f))) err('site', `missing ${f}`);
+for (const f of ['sitemap.xml', '404.html', 'search-index.json', 'posts.json', 'feed.xml', 'sw.js', 'robots.txt', 'llms.txt']) if (!fs.existsSync(path.join(DIST, f))) err('site', `missing ${f}`);
 
 const show = (label, list, n = 40) => { if (list.length) { console.log(`\n${label} (${list.length}):`); list.slice(0, n).forEach((x) => console.log('  - ' + x)); if (list.length > n) console.log(`  … ${list.length - n} more`); } };
 show('ERRORS', errors);
