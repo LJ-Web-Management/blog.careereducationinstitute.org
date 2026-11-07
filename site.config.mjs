@@ -3,9 +3,12 @@
 // (https://lj-web-management.github.io/blog.careereducationinstitute.org) until the custom domain is connected, then
 // https://blog.careereducationinstitute.org. Blog pages are written as /blog/... paths and published at the root of
 // this site; every other path (/careers/..., /assets/..., /favicon.ico) is the main site, at mainUrl.
-const url = (process.env.SITE_URL || 'http://localhost:4174').replace(/\/$/, '');
+// GitHub Pages reports an http:// base_url until "Enforce HTTPS" is ticked, so any address other than localhost is
+// written as https://, keeping canonicals, the sitemap and robots.txt on one scheme.
+const https = (u) => (/^http:\/\/(localhost|127\.)/.test(u) ? u : u.replace(/^http:\/\//, 'https://'));
+const url = https(process.env.SITE_URL || 'http://localhost:4174').replace(/\/$/, '');
 // MAIN_SITE_URL overrides; otherwise the main site follows the same pattern as this one.
-const mainUrl = (process.env.MAIN_SITE_URL || (/localhost/.test(url) ? 'http://localhost:4173' : /github\.io/.test(url) ? new URL(url).origin + '/www.careereducationinstitute.org' : 'https://www.careereducationinstitute.org')).replace(/\/$/, '');
+const mainUrl = https(process.env.MAIN_SITE_URL || (/localhost/.test(url) ? 'http://localhost:4173' : /github\.io/.test(url) ? new URL(url).origin + '/www.careereducationinstitute.org' : 'https://www.careereducationinstitute.org')).replace(/\/$/, '');
 
 export default {
   name: 'Career Education Institute',

@@ -48,10 +48,12 @@ if (sharp) {
 // The sitemap (listed in this site's robots.txt), plus two files the main site reads: search entries (merged into
 // its site search, so they carry full URLs) and the latest posts (shown on its homepage).
 const indexable = pages.filter((p) => !p.noindex && !p.raw);
-fs.writeFileSync(path.join(DIST, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexable.map((p) => `<url><loc>${esc(abs(p.path))}</loc><lastmod>${p.modified || cfg.updated}</lastmod></url>`).join('\n')}\n</urlset>\n`);
+// Posts carry their share image, as the main site's sitemaps do; list pages take the newest post's date.
+fs.writeFileSync(path.join(DIST, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n${indexable.map((p) => `<url><loc>${esc(abs(p.path))}</loc><lastmod>${p.modified || cfg.updated}</lastmod>${p.type === 'article' && p.og ? `<image:image><image:loc>${esc(abs(p.og))}</image:loc></image:image>` : ''}</url>`).join('\n')}\n</urlset>\n`);
 const snip = (d = '', n = 120) => (d.length <= n ? d : d.slice(0, d.lastIndexOf(' ', n)).replace(/[,;:.\s]+$/, '') + '…');
 fs.writeFileSync(path.join(DIST, 'search-index.json'), JSON.stringify(indexable.filter((p) => p.kind).map((p) => ({ t: p.name || p.title, u: abs(p.path), d: snip(p.desc), y: p.kind, ...(p.keywords ? { k: p.keywords } : {}) }))));
-// This blog is its own site, so it has its own robots.txt (it takes effect once the custom domain is connected).
+// This blog is its own site, so it has its own robots.txt. It only takes effect at a domain root (once the custom domain
+// is connected); until then the main site's robots.txt lists this sitemap.
 fs.writeFileSync(path.join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\n\nSitemap: ${abs('/blog/sitemap.xml')}\n`);
 fs.writeFileSync(path.join(DIST, 'posts.json'), JSON.stringify(posts.map((p) => ({ slug: p.slug, title: p.title, description: p.description, category: p.category, date: p.date, ...(p.updated ? { updated: p.updated } : {}) }))));
 
