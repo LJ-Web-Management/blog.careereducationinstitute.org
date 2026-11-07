@@ -3,10 +3,13 @@
 // checks out this repo, builds it with SITE_URL=<main site>/blog and copies dist/ into its own dist/blog/. SITE_URL
 // is this blog's address: blog pages are written as /blog/... paths and published under it; every other path
 // (/careers/..., /assets/..., /favicon.ico) is the main site, at mainUrl.
-const url = (process.env.SITE_URL || 'http://localhost:4174').replace(/\/$/, '');
+// GitHub Pages reports an http:// base_url until "Enforce HTTPS" is ticked, so any address other than localhost is
+// written as https:// (as the main site does).
+const https = (u) => (/^http:\/\/(localhost|127\.)/.test(u) ? u : u.replace(/^http:\/\//, 'https://'));
+const url = https(process.env.SITE_URL || 'http://localhost:4174').replace(/\/$/, '');
 // MAIN_SITE_URL overrides; otherwise the main site is the address the blog sits under (.../blog), or for a local
 // preview of the blog on its own, the main site's local preview.
-const mainUrl = (process.env.MAIN_SITE_URL || (/\/blog$/.test(url) ? url.slice(0, -'/blog'.length) : /localhost/.test(url) ? 'http://localhost:4173' : 'https://cei.ictraining.us')).replace(/\/$/, '');
+const mainUrl = https(process.env.MAIN_SITE_URL || (/\/blog$/.test(url) ? url.slice(0, -'/blog'.length) : /localhost/.test(url) ? 'http://localhost:4173' : 'https://cei.ictraining.us')).replace(/\/$/, '');
 
 export default {
   name: 'Career Education Institute',
